@@ -1,29 +1,66 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<mule xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp" xmlns:file="http://www.mulesoft.org/schema/mule/file"
-	xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
-	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+<mule
+    xmlns:sftp="http://www.mulesoft.org/schema/mule/sftp"
+    xmlns:file="http://www.mulesoft.org/schema/mule/file"
+    xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+    xmlns:http="http://www.mulesoft.org/schema/mule/http"
+    xmlns="http://www.mulesoft.org/schema/mule/core"
+    xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
 http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd
 http://www.mulesoft.org/schema/mule/sftp http://www.mulesoft.org/schema/mule/sftp/current/mule-sftp.xsd">
-	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="dd3c346f-faf6-4c96-87b3-1e46fd073e33" >
-		<http:listener-connection host="0.0.0.0" port="8081" />
-	</http:listener-config>
-	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="909d294b-1797-4303-b723-ea4f265043dd" >
-		<http:request-connection streamResponse="true" />
-	</http:request-config>
-	<sftp:config name="SFTP_Config" doc:name="SFTP Config" doc:id="1647c370-8ab5-46d8-8139-0f95c4e69386" >
-		<sftp:connection username="mulesoft" password="57W0zgODK7n5Xg3JZgW*" host="eksprod.tools.mulesoft.com" port="32125"/>
-	</sftp:config>
-	<flow name="large-csv-to-jsonFlow" doc:id="f90435f8-e10a-48a6-88a2-421792664464" >
-		<http:listener doc:name="Listener" doc:id="971d21f7-11b7-4d0a-96f0-28150519b358" config-ref="HTTP_Listener_config" path="/large-csv-to-json"/>
-		<http:request method="GET" doc:name="start downloading file" doc:id="443dcd9e-cbde-48b4-bd7d-40f35e0b02e5" url="http://large-csv-file.us-e2.cloudhub.io/CovidData.csv" config-ref="HTTP_Request_configuration" outputMimeType="application/csv; streaming=true" requestStreamingMode="ALWAYS">
-			<non-repeatable-stream />
-		</http:request>
-		<ee:transform doc:name="transform CSV to JSON in a deferred manner" doc:id="f6f2c0a5-95cd-4e7a-9c8c-3fe25353e969">
-			<ee:message>
-				<ee:set-payload><![CDATA[%dw 2.0
+  <http:listener-config
+      name="HTTP_Listener_config"
+      doc:name="HTTP Listener config"
+      doc:id="dd3c346f-faf6-4c96-87b3-1e46fd073e33">
+    <http:listener-connection
+        host="0.0.0.0"
+        port="8081" />
+  </http:listener-config>
+  <http:request-config
+      name="HTTP_Request_configuration"
+      doc:name="HTTP Request configuration"
+      doc:id="909d294b-1797-4303-b723-ea4f265043dd">
+    <http:request-connection streamResponse="true" />
+  </http:request-config>
+  <sftp:config
+      name="SFTP_Config"
+      doc:name="SFTP Config"
+      doc:id="1647c370-8ab5-46d8-8139-0f95c4e69386">
+    <sftp:connection
+        username="mulesoft"
+        password="57W0zgODK7n5Xg3JZgW*"
+        host="eksprod.tools.mulesoft.com"
+        port="32125" />
+  </sftp:config>
+  <flow
+      name="large-csv-to-jsonFlow"
+      doc:id="f90435f8-e10a-48a6-88a2-421792664464">
+    <http:listener
+        doc:name="Listener"
+        doc:id="971d21f7-11b7-4d0a-96f0-28150519b358"
+        config-ref="HTTP_Listener_config"
+        path="/large-csv-to-json" />
+    <http:request
+        method="GET"
+        doc:name="start downloading file"
+        doc:id="443dcd9e-cbde-48b4-bd7d-40f35e0b02e5"
+        url="http://large-csv-file.us-e2.cloudhub.io/CovidData.csv"
+        config-ref="HTTP_Request_configuration"
+        outputMimeType="application/csv; streaming=true"
+        requestStreamingMode="ALWAYS">
+      <non-repeatable-stream />
+    </http:request>
+    <ee:transform
+        doc:name="transform CSV to JSON in a deferred manner"
+        doc:id="f6f2c0a5-95cd-4e7a-9c8c-3fe25353e969">
+      <ee:message>
+        <ee:set-payload>
+          <![CDATA[%dw 2.0
 output application/json deferred=true, indent=false
 ---
 payload map {
@@ -41,8 +78,9 @@ payload map {
       "deathYn": $.death_yn,
       "medCondYn": $.medcond_yn
     }
-  }]]></ee:set-payload>
-			</ee:message>
-		</ee:transform>
-	</flow>
+  }]]>
+        </ee:set-payload>
+      </ee:message>
+    </ee:transform>
+  </flow>
 </mule>
